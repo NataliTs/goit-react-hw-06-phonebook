@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import { Contact, DeleteBtn, Number } from './ContactList.styled';
+import { RiDeleteBin6Line } from 'react-icons/ri';
 
 export const ContactList = ({ contacts, onDelete }) => (
   <ul>
@@ -7,7 +8,7 @@ export const ContactList = ({ contacts, onDelete }) => (
       <Contact key={id}>
         {name}: <Number>{number}</Number>
         <DeleteBtn type="button" onClick={() => onDelete(id)}>
-          Delete
+          <RiDeleteBin6Line />
         </DeleteBtn>
       </Contact>
     ))}
