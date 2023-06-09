@@ -1,45 +1,36 @@
-import { useEffect, useState } from 'react';
 import { GlobalStyle } from './GlobalStyle';
 import { Layout } from './Layout/Layout';
 import { ContactList } from './ContactList/ContactList';
 import { ContactForm } from './ContactForm/ContactForm';
 import { nanoid } from 'nanoid';
 import { Filter } from './Filter/Filter';
+import { useDispatch, useSelector } from 'react-redux';
+import { getContacts, getFilter } from '../redux/selectors';
+import { addContact, deleteContact } from '../redux/contactsSlice';
+import { setFilter } from '../redux/filterSlice';
 
-const initialContacts = [
+export const initialContacts = [
   { id: nanoid(), name: 'Rosie Simpson', number: '459-12-56' },
   { id: nanoid(), name: 'Hermione Kline', number: '443-89-12' },
   { id: nanoid(), name: 'Eden Clements', number: '645-17-79' },
   { id: nanoid(), name: 'Annie Copeland', number: '227-91-26' },
 ];
 
-const getInitialContacts = () => {
-  const savedContacts = localStorage.getItem('contacts');
-  if (savedContacts !== null) {
-    return JSON.parse(savedContacts);
-  } else {
-    return initialContacts;
-  }
-};
-
 export const App = () => {
-  const [contacts, setContacts] = useState(getInitialContacts);
-  const [filter, setFilter] = useState('');
+  const contacts = useSelector(getContacts);
+  const filter = useSelector(getFilter);
+  const dispatch = useDispatch();
 
-  useEffect(() => {
-    localStorage.setItem('contacts', JSON.stringify(contacts));
-  }, [contacts]);
-
-  const addContact = newContact => {
-    contacts.some(
+  const onAddContact = newContact => {
+    contacts.find(
       contact => newContact.name.toLowerCase() === contact.name.toLowerCase()
     )
       ? alert(`${newContact.name} is already in contacts`)
-      : setContacts(prevState => [newContact, ...prevState]);
+      : dispatch(addContact(newContact));
   };
 
   const changeFilter = e => {
-    setFilter(e.currentTarget.value);
+    dispatch(setFilter(e.currentTarget.value));
   };
 
   const getVisibleContacts = () => {
@@ -49,21 +40,18 @@ export const App = () => {
     );
   };
 
-  const deleteContact = contactId => {
-    setContacts(prevState =>
-      prevState.filter(contact => contact.id !== contactId)
-    );
+  const onDeleteContact = contactId => {
+    dispatch(deleteContact(contactId));
   };
 
   return (
     <Layout>
       <GlobalStyle />
       <h1>Phonebook</h1>
-      <ContactForm onSave={addContact} />
-
+      <ContactForm onSave={onAddContact} />
       <h2>Contacts</h2>
       <Filter value={filter} onChange={changeFilter} />
-      <ContactList contacts={getVisibleContacts()} onDelete={deleteContact} />
+      <ContactList contacts={getVisibleContacts()} onDelete={onDeleteContact} />
     </Layout>
   );
 };
